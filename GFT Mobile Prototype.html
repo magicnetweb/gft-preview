@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GFT Filtrazione — Mobile Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <template id="__bundler_thumbnail" data-bg-color="#0a2540">
+    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1200" height="800" fill="#0a2540"/>
+      <rect x="470" y="300" width="260" height="200" rx="34" fill="#ffffff"/>
+      <rect x="470" y="300" width="34" height="200" fill="#f5b301"/>
+      <text x="612" y="432" font-family="Arial,sans-serif" font-weight="800" font-size="120" letter-spacing="4" text-anchor="middle" fill="#0a2540">GF<tspan fill="#d99e00">T</tspan></text>
+    </svg>
+  </template>
+
+  <style>
+    :root {
+      --navy: #0a2540;
+      --navy-deep: #06192c;
+      --navy-soft: #12365a;
+      --gold: #f5b301;
+      --gold-deep: #d99e00;
+      --steel: #5b7186;
+      --mist: #eef2f6;
+      --line: #e2e8ef;
+      --ink: #0a2540;
+      --ink-soft: #51637a;
+      --white: #ffffff;
+      --ce-green: #1f8a4c;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Barlow', -apple-system, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 0%, #1a3a5c 0%, transparent 60%),
+        radial-gradient(900px 500px at 100% 100%, #0c2d4a 0%, transparent 55%),
+        #0a1622;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 28px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .phone {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      background: #000;
+      border-radius: 54px;
+      padding: 11px;
+      box-shadow:
+        0 0 0 2px #1c1c1e,
+        0 40px 90px rgba(0,0,0,0.55),
+        0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .screen-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: var(--mist);
+      border-radius: 44px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Dynamic island */
+    .island {
+      position: absolute;
+      top: 11px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 122px;
+      height: 34px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 100;
+    }
+
+    /* Status bar */
+    .status-bar {
+      height: 54px;
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 30px 6px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Barlow Semi Condensed';
+      letter-spacing: 0.3px;
+      z-index: 50;
+    }
+    .status-bar.on-dark { color: #fff; }
+    .status-bar.on-light { color: var(--ink); }
+    .status-icons { display: flex; align-items: center; gap: 6px; }
+    .status-icons svg { display: block; }
+
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+    .scroll-area::-webkit-scrollbar { width: 0; }
+
+    .screen { display: none; flex-direction: column; min-height: 100%; }
+    .screen.active { display: flex; }
+
+    /* ============ HOME ============ */
+    .home-top {
+      background:
+        linear-gradient(160deg, var(--navy) 0%, var(--navy-deep) 100%);
+      padding: 0 22px 26px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .home-top::after {
+      content: "";
+      position: absolute;
+      right: -60px; top: -40px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(245,179,1,0.18);
+      box-shadow: 0 0 0 26px rgba(245,179,1,0.05);
+    }
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 4px;
+      position: relative; z-index: 2;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .brand-logo {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.28);
+      overflow: hidden;
+    }
+    .brand-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .brand-mark {
+      font-family: 'Barlow Semi Condensed';
+      font-weight: 800;
+      font-size: 24px;
+      letter-spacing: 0.8px;
+      color: #fff;
+      line-height: 1;
+    }
+    .brand-mark .accent { color: var(--gold); }
+    .brand-sub {
+      font-size: 9.5px;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.55);
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .header-actions { display: flex; align-items: center; gap: 9px; }
+    .phone-btn {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--gold);
+      color: var(--navy-deep);
+      font-family: 'Barlow Semi Condensed';
+      font-weight: 700; font-size: 14px; letter-spacing: 0.3px;
+      padding: 9px 13px; border-radius: 12px;
+      cursor: pointer; border: none;
+      box-shadow: 0 6px 16px rgba(245,179,1,0.28);
+      transition: transform 0.14s;
+    }
+    .phone-btn:active { transform: scale(0.95); }
+    .icon-btn {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      transition: background 0.18s;
+    }
+    .icon-btn:active { background: rgba(255,255,255,0.2); }
+
+    .hero {
+      position: relative; z-index: 2;
+      margin-top: 26px;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: 'Barlow Semi Condensed';
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(245,179,1,0.1);
+      border: 1px solid rgba(245,179,1,0.25);
+      padding: 5px 11px;
+      border-radius: 20px;
+    }
+    .hero h1 {
+      font-family: 'Barlow Semi Condensed';
+      font-weight: 800;
+      font-size: 34px;
+      line-height: 1.02;
+      margin-top: 14px;
+      letter-spacing: 0.4px;
+      text-wrap: balance;
+    }
+    .hero p {
+      font-size: 14.5px;
+      line-height: 1.45;
+      color: rgba(255,255,255,0.72);
+      margin-top: 12px;
+      max-width: 290px;
+    }
+
+    .search-wrap { padding: 0 22px; margin-top: -20px; position: relative; z-index: 10; }
+    .search {
+      display: flex; align-items: center; gap: 11px;
+      background: #fff;
+      border-radius: 15px;
+      padding: 14px 16px;
+      box-shadow: 0 14px 30px rgba(10,37,64,0.16);
+    }
+    .search input {
+      flex: 1; border: none; outline: none;
+      font-size: 15px; font-family: 'Barlow';
+      color: var(--ink); background: transparent;
+    }
+    .search input::placeholder { color: #9aa9bb; }
+
+    .chips {
+      display: flex; gap: 9px;
+      padding: 22px 22px 4px;
+      overflow-x: auto;
+    }
+    .chips::-webkit-scrollbar { height: 0; }
+    .chip {
+      flex-shrink: 0;
+      font-family: 'Barlow Semi Condensed';
+      font-size: 13.5px; font-weight: 600;
+      letter-spacing: 0.4px;
+      padding: 9px 16px;
+      border-radius: 11px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.16s;
+    }
+    .chip.active {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff;
+    }
+
+    .section-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: 22px 22px 14px;
+    }
+    .section-head h2 {
+      font-family: 'Barlow Semi Condensed';
+      font-weight: 700; font-size: 20px;
+      color: var(--ink); letter-spacing: 0.3px;
+    }
+    .section-head span {
+      font-size: 13px; font-weight: 600; color: var(--gold-deep);
+    }
+
+    .product-list {
+      display: flex; flex-direction: column; gap: 14px;
+      padding: 0 22px 30px;
+    }
+    .pcard {
+      display: flex; gap: 14px;
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      cursor: pointer;
+      transition: transform 0.16s, box-shadow 0.16s;
+      box-shadow: 0 2px 8px rgba(10,37,64,0.04);
+    }
+    .pcard:active {
+      transform: scale(0.985);
+      box-shadow: 0 10px 24px rgba(10,37,64,0.12);
+    }
+    .pcard-img {
+      width: 92px; height: 100px;
+      border-radius: 13px;
+      flex-shrink: 0;
+      position: relative;
+      display: flex; align-items: flex-end;
+      padding: 9px;
+      overflow: hidden;
+    }
+    .pcard-img .flow {
+      font-family: 'Barlow Semi Condensed';
+      font-weight: 800;
+      color: #fff;
+      line-height: 0.92;
+    }
+    .pcard-img .flow b { display: block; font-size: 22px; }
+    .pcard-img .flow small { font-size: 10px; font-weight: 600; opacity: 0.85; letter-spacing: 0.5px; }
+    .pcard-img::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.07) 0 2px, transparent 2px 9px);
+      z-index: 1;
+    }
+    .pcard-photo {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+    .img-scrim {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(6,25,44,0.05) 35%, rgba(6,25,44,0.78) 100%);
+      z-index: 2;
+    }
+    .pcard-img .flow { position: relative; z-index: 3; text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+
+    /* News rail (home) */
+    .novita { padding: 4px 0 8px; }
+    .news-rail {
+      display: flex; gap: 15px;
+      padding: 4px 22px 8px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-left: 22px;
+    }
+    .news-rail::-webkit-scrollbar { height: 0; }
+    .news-mini {
+      flex-shrink: 0; width: 252px;
+      scroll-snap-align: start;
+      background: #fff; border-radius: 18px;
+      border: 1px solid var(--line); overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(10,37,64,0.06);
+      transition: transform 0.22s cubic-bezier(.2,.7,.3,1), box-shadow 0.22s;
+    }
+    .news-mini:active { transform: scale(0.97); }
+    .news-mini-imgwrap { position: relative; height: 140px; overflow: hidden; }
+    .news-mini-img {
+      width: 100%; height: 100%; object-fit: cover;
+      background: var(--navy-soft); display: block;
+      transition: transform 0.5s cubic-bezier(.2,.7,.3,1);
+    }
+    .news-mini:hover .news-mini-img { transform: scale(1.07); }
+    .news-mini-cat {
+      position: absolute; top: 11px; left: 11px;
+      font-family: 'Barlow Semi Condensed';
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; color: var(--navy-deep);
+      background: var(--gold); padding: 4px 9px; border-radius: 7px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+    }
+    .news-mini-body { padding: 13px 14px 16px; }
+    .news-cat {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 10.5px; font-weight: 600; letter-spacing: 0.8px;
+      text-transform: uppercase; color: var(--gold-deep);
+    }
+    .news-mini-t {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 16.5px; font-weight: 700; color: var(--ink);
+      line-height: 1.18; margin-top: 2px;
+      text-wrap: pretty;
+    }
+    .news-date {
+      font-size: 12px; color: #9aa9bb; margin-top: 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .news-date .read {
+      margin-left: auto; color: var(--gold-deep); font-weight: 700;
+      font-family: 'Barlow Semi Condensed'; font-size: 12.5px;
+      display: flex; align-items: center; gap: 2px;
+    }
+    .news-date .read svg { width: 14px; height: 14px; }
+
+    /* News screen */
+    .news-list { padding: 16px 22px 30px; display: flex; flex-direction: column; gap: 16px; }
+    /* featured */
+    .news-feat {
+      border-radius: 20px; overflow: hidden; cursor: pointer;
+      position: relative; color: #fff;
+      box-shadow: 0 12px 30px rgba(10,37,64,0.18);
+    }
+    .news-feat:active { transform: scale(0.985); }
+    .news-feat-img { width: 100%; height: 220px; object-fit: cover; display: block; background: var(--navy-soft); }
+    .news-feat-scrim {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(6,25,44,0) 30%, rgba(6,25,44,0.92) 100%);
+    }
+    .news-feat-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px; }
+    .news-feat-cat {
+      display: inline-block;
+      font-family: 'Barlow Semi Condensed';
+      font-size: 10.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      color: var(--navy-deep); background: var(--gold);
+      padding: 4px 10px; border-radius: 7px; margin-bottom: 9px;
+    }
+    .news-feat-t {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 23px; font-weight: 800; line-height: 1.08; letter-spacing: 0.2px;
+      text-wrap: balance; text-shadow: 0 1px 8px rgba(0,0,0,0.35);
+    }
+    .news-feat-meta { font-size: 12.5px; color: rgba(255,255,255,0.78); margin-top: 9px; }
+
+    .news-row {
+      display: flex; gap: 14px; align-items: stretch;
+      background: #fff; border-radius: 16px; padding: 12px;
+      border: 1px solid var(--line); cursor: pointer;
+      box-shadow: 0 3px 12px rgba(10,37,64,0.05);
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .news-row:active { transform: scale(0.98); }
+    .news-row-img {
+      width: 92px; height: 92px; border-radius: 12px;
+      object-fit: cover; flex-shrink: 0; background: var(--navy-soft);
+    }
+    .news-row-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .news-row-t {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 17px; font-weight: 700; color: var(--ink); line-height: 1.2;
+      margin-top: 2px; text-wrap: pretty;
+    }
+    .news-row .news-date { margin-top: auto; padding-top: 8px; }
+
+    /* ===== entrance animations ===== */
+    @media (prefers-reduced-motion: no-preference) {
+      @keyframes riseIn {
+        from { opacity: 0; transform: translateY(18px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes slideIn {
+        from { opacity: 0; transform: translateX(26px); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+      .screen.active .anim-rise { animation: riseIn 0.5s cubic-bezier(.2,.7,.3,1) both; }
+      .screen.active .anim-slide { animation: slideIn 0.5s cubic-bezier(.2,.7,.3,1) both; }
+    }
+    .pcard-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .pcat {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.8px; text-transform: uppercase;
+      color: var(--gold-deep);
+    }
+    .pname {
+      font-family: 'Barlow Semi Condensed';
+      font-weight: 700; font-size: 18px;
+      color: var(--ink); letter-spacing: 0.2px;
+      margin-top: 3px; line-height: 1.05;
+    }
+    .pdesc { font-size: 13px; color: var(--ink-soft); margin-top: 4px; line-height: 1.35; }
+    .pmeta { display: flex; gap: 7px; margin-top: auto; padding-top: 10px; }
+    .tag {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 11px; font-weight: 600; letter-spacing: 0.4px;
+      padding: 4px 9px; border-radius: 7px;
+      background: var(--mist); color: var(--ink-soft);
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .tag.ce { background: rgba(31,138,76,0.1); color: var(--ce-green); }
+
+    /* ============ PRODUCT DETAIL ============ */
+    .detail-hero {
+      position: relative;
+      padding: 0 22px 30px;
+      color: #fff;
+      overflow: hidden;
+    }
+    .detail-hero::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.06) 0 2px, transparent 2px 12px);
+      opacity: 0.6;
+    }
+    .detail-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      position: relative; z-index: 2;
+    }
+    .detail-hero-content { position: relative; z-index: 2; margin-top: 28px; }
+    .detail-cat {
+      display: inline-block;
+      font-family: 'Barlow Semi Condensed';
+      font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(245,179,1,0.12);
+      border: 1px solid rgba(245,179,1,0.28);
+      padding: 5px 12px; border-radius: 20px;
+    }
+    .detail-name {
+      font-family: 'Barlow Semi Condensed';
+      font-weight: 800; font-size: 32px;
+      letter-spacing: 0.5px; line-height: 1.0;
+      margin-top: 16px;
+    }
+    .detail-flow {
+      display: flex; align-items: baseline; gap: 8px;
+      margin-top: 16px;
+    }
+    .detail-flow b {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 40px; font-weight: 800; color: var(--gold);
+      line-height: 1;
+    }
+    .detail-flow span { font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 500; }
+
+    .detail-body { padding: 24px 22px 30px; }
+    .spec-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+      margin-top: -56px; position: relative; z-index: 5;
+    }
+    .spec-card {
+      background: #fff; border-radius: 15px; padding: 15px;
+      border: 1px solid var(--line);
+      box-shadow: 0 6px 16px rgba(10,37,64,0.07);
+    }
+    .spec-card .ico {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: var(--mist); color: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 10px;
+    }
+    .spec-card .lbl {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 11px; font-weight: 600; letter-spacing: 0.6px;
+      text-transform: uppercase; color: var(--ink-soft);
+    }
+    .spec-card .val {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 19px; font-weight: 700; color: var(--ink);
+      margin-top: 2px; line-height: 1.1;
+    }
+
+    .block-title {
+      font-family: 'Barlow Semi Condensed';
+      font-weight: 700; font-size: 18px; color: var(--ink);
+      margin: 26px 0 11px; letter-spacing: 0.3px;
+    }
+    .detail-desc { font-size: 14.5px; line-height: 1.6; color: var(--ink-soft); }
+
+    .sectors { display: flex; flex-wrap: wrap; gap: 8px; }
+    .sector {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 13px; font-weight: 600; letter-spacing: 0.3px;
+      padding: 8px 13px; border-radius: 10px;
+      background: #fff; border: 1px solid var(--line); color: var(--ink);
+    }
+
+    .detail-cta {
+      position: sticky; bottom: 0;
+      display: flex; gap: 11px;
+      padding: 14px 22px calc(14px + env(safe-area-inset-bottom));
+      background: linear-gradient(to top, var(--mist) 70%, transparent);
+    }
+    .btn {
+      font-family: 'Barlow Semi Condensed';
+      font-weight: 700; font-size: 16px; letter-spacing: 0.4px;
+      border: none; border-radius: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.14s, filter 0.14s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      flex: 1; padding: 16px;
+      background: var(--gold); color: var(--navy-deep);
+      box-shadow: 0 10px 22px rgba(245,179,1,0.32);
+    }
+    .btn-icon {
+      width: 54px; flex-shrink: 0;
+      background: var(--navy); color: #fff;
+    }
+
+    /* ============ MENU ============ */
+    .menu-top {
+      background: linear-gradient(160deg, var(--navy) 0%, var(--navy-deep) 100%);
+      padding: 8px 22px 26px;
+      color: #fff;
+    }
+    .menu-top h2 {
+      font-family: 'Barlow Semi Condensed';
+      font-weight: 800; font-size: 30px; letter-spacing: 0.5px;
+      margin-top: 12px;
+    }
+    .menu-top p { font-size: 13.5px; color: rgba(255,255,255,0.62); margin-top: 4px; }
+    .menu-list { padding: 14px 22px 20px; display: flex; flex-direction: column; }
+    .menu-item {
+      display: flex; align-items: center; gap: 15px;
+      padding: 17px 0;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+    }
+    .menu-item:active { opacity: 0.55; }
+    .menu-ico {
+      width: 42px; height: 42px; border-radius: 12px;
+      background: var(--mist); color: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .menu-txt { flex: 1; }
+    .menu-txt b {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 17px; font-weight: 700; color: var(--ink);
+      letter-spacing: 0.2px; display: block;
+    }
+    .menu-txt small { font-size: 12.5px; color: var(--ink-soft); }
+    .menu-chev { color: #b9c5d2; }
+
+    .contact-card {
+      margin: 6px 22px 30px;
+      background: var(--navy);
+      border-radius: 18px;
+      padding: 20px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .contact-card::after {
+      content: "";
+      position: absolute; right: -30px; bottom: -30px;
+      width: 120px; height: 120px; border-radius: 50%;
+      border: 1.5px solid rgba(245,179,1,0.2);
+    }
+    .contact-card .ct-lbl {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--gold); font-weight: 600;
+    }
+    .contact-card .ct-phone {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 24px; font-weight: 800; margin-top: 6px; letter-spacing: 0.5px;
+    }
+    .contact-card .ct-addr { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 8px; line-height: 1.4; }
+
+    /* ============ DOCUMENTAZIONE (allegato) ============ */
+    .doc-card {
+      width: 100%; display: flex; align-items: center; gap: 13px;
+      background: #fff; border: 1px solid var(--line); border-radius: 15px;
+      padding: 14px; cursor: pointer; margin-top: 4px; text-align: left;
+      box-shadow: 0 3px 12px rgba(10,37,64,0.05);
+      transition: transform 0.14s, box-shadow 0.14s; font-family: 'Barlow';
+    }
+    .doc-card:active { transform: scale(0.985); box-shadow: 0 8px 20px rgba(10,37,64,0.12); }
+    .doc-ico {
+      width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;
+      background: rgba(220,38,38,0.1); color: #dc2626;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .doc-info { flex: 1; min-width: 0; }
+    .doc-info b { font-family: 'Barlow Semi Condensed'; font-weight: 700; font-size: 16px; color: var(--ink); display: block; line-height: 1.15; }
+    .doc-info small { font-size: 12.5px; color: var(--ink-soft); }
+    .doc-dl { width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0; background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: center; }
+
+    /* ============ CATEGORY ============ */
+    .cat-hero {
+      background: linear-gradient(160deg, var(--navy) 0%, var(--navy-deep) 100%);
+      color: #fff; padding: 8px 22px 26px; position: relative; overflow: hidden;
+    }
+    .cat-hero::after {
+      content: ""; position: absolute; right: -50px; top: -30px;
+      width: 200px; height: 200px; border-radius: 50%;
+      border: 1.5px solid rgba(245,179,1,0.16);
+    }
+    .cat-nav { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 2; }
+    .cat-eyebrow {
+      display: inline-block; font-family: 'Barlow Semi Condensed';
+      font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--gold); background: rgba(245,179,1,0.12); border: 1px solid rgba(245,179,1,0.28);
+      padding: 5px 12px; border-radius: 20px; margin-top: 20px; position: relative; z-index: 2;
+    }
+    .cat-hero h2 { font-family: 'Barlow Semi Condensed'; font-weight: 800; font-size: 30px; letter-spacing: 0.4px; margin-top: 14px; position: relative; z-index: 2; }
+    .cat-hero p { font-size: 14px; color: rgba(255,255,255,0.66); margin-top: 8px; line-height: 1.5; max-width: 300px; position: relative; z-index: 2; }
+    .cat-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px 8px; }
+    .cat-count { font-family: 'Barlow Semi Condensed'; font-weight: 700; font-size: 15px; color: var(--ink); letter-spacing: 0.3px; }
+    .cat-count span { color: var(--gold-deep); }
+    .cat-sort { display: flex; align-items: center; gap: 7px; font-family: 'Barlow Semi Condensed'; font-weight: 600; font-size: 13px; color: var(--ink-soft); background: #fff; border: 1px solid var(--line); padding: 8px 12px; border-radius: 10px; }
+    .empty-state { margin: 16px 22px; background: #fff; border: 1px dashed #cdd8e4; border-radius: 18px; padding: 36px 24px; text-align: center; }
+    .empty-state .es-ico { width: 54px; height: 54px; border-radius: 15px; background: var(--mist); color: var(--navy); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+    .empty-state h4 { font-family: 'Barlow Semi Condensed'; font-weight: 700; font-size: 19px; color: var(--ink); }
+    .empty-state p { font-size: 14px; color: var(--ink-soft); margin-top: 6px; line-height: 1.5; }
+    .empty-state button { margin-top: 18px; font-family: 'Barlow Semi Condensed'; font-weight: 700; font-size: 15px; color: var(--navy-deep); background: var(--gold); border: none; border-radius: 12px; padding: 12px 20px; cursor: pointer; }
+
+    /* ============ CONTATTI ============ */
+    .contatti-hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-deep) 100%); color:#fff; padding: 8px 22px 28px; position:relative; overflow:hidden; }
+    .contatti-hero::after { content:""; position:absolute; right:-50px; top:-30px; width:200px; height:200px; border-radius:50%; border:1.5px solid rgba(245,179,1,0.16); }
+    .contatti-hero h2 { font-family:'Barlow Semi Condensed'; font-weight:800; font-size:32px; letter-spacing:0.4px; margin-top:14px; position:relative; z-index:2; }
+    .contatti-hero p { font-size:14px; color:rgba(255,255,255,0.66); margin-top:8px; line-height:1.5; max-width:300px; position:relative; z-index:2; }
+
+    .ct-quick { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding: 18px 22px 4px; }
+    .ct-qcard { display:flex; flex-direction:column; gap:3px; background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; text-decoration:none; box-shadow:0 4px 14px rgba(10,37,64,0.05); transition:transform .14s; }
+    .ct-qcard:active { transform:scale(0.97); }
+    .ct-qico { width:40px; height:40px; border-radius:12px; background:var(--navy); color:var(--gold); display:flex; align-items:center; justify-content:center; margin-bottom:8px; }
+    .ct-qlbl { font-family:'Barlow Semi Condensed'; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--ink-soft); }
+    .ct-qval { font-family:'Barlow Semi Condensed'; font-weight:700; font-size:18px; color:var(--ink); letter-spacing:0.3px; }
+
+    .cform { margin: 16px 22px 0; background:#fff; border:1px solid var(--line); border-radius:18px; padding:22px; box-shadow:0 6px 20px rgba(10,37,64,0.06); }
+    .cform > h3 { font-family:'Barlow Semi Condensed'; font-weight:800; font-size:21px; color:var(--ink); letter-spacing:0.3px; }
+    .cform-sub { font-size:13.5px; color:var(--ink-soft); margin-top:4px; line-height:1.45; }
+    .cfield { display:block; margin-top:14px; }
+    .cfield > span { display:block; font-family:'Barlow Semi Condensed'; font-size:12px; font-weight:600; letter-spacing:0.6px; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px; }
+    .cfield input, .cfield select, .cfield textarea { width:100%; font-family:'Barlow'; font-size:15px; color:var(--ink); background:var(--mist); border:1px solid var(--line); border-radius:12px; padding:13px 14px; outline:none; transition:border-color .15s, background .15s; -webkit-appearance:none; appearance:none; }
+    .cfield input:focus, .cfield select:focus, .cfield textarea:focus { border-color:var(--gold-deep); background:#fff; }
+    .cfield textarea { resize:none; }
+    .cfield-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .cform-submit { width:100%; margin-top:18px; display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Barlow Semi Condensed'; font-weight:700; font-size:16px; letter-spacing:0.3px; color:var(--navy-deep); background:var(--gold); border:none; border-radius:13px; padding:15px; cursor:pointer; box-shadow:0 10px 22px rgba(245,179,1,0.3); transition:transform .14s; }
+    .cform-submit:active { transform:scale(0.98); }
+    .cform-privacy { font-size:11px; color:var(--ink-soft); text-align:center; margin-top:12px; line-height:1.5; }
+    .cform-done { text-align:center; padding:34px 24px; }
+    .cform-check { width:60px; height:60px; border-radius:50%; background:rgba(31,138,76,0.12); color:var(--ce-green); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+    .cform-done h3 { font-family:'Barlow Semi Condensed'; font-weight:800; font-size:22px; color:var(--ink); }
+    .cform-done p { font-size:14px; color:var(--ink-soft); margin-top:8px; line-height:1.5; }
+    .cform-again { margin-top:18px; font-family:'Barlow Semi Condensed'; font-weight:700; font-size:14px; color:var(--navy); background:var(--mist); border:1px solid var(--line); border-radius:12px; padding:12px 18px; cursor:pointer; }
+
+    .ct-location { margin: 16px 22px 0; background:var(--navy); border-radius:18px; padding:22px; color:#fff; position:relative; overflow:hidden; }
+    .ct-location::after { content:""; position:absolute; right:-30px; bottom:-30px; width:120px; height:120px; border-radius:50%; border:1.5px solid rgba(245,179,1,0.2); }
+    .ct-loc-head { display:flex; align-items:center; gap:12px; position:relative; z-index:2; }
+    .ct-loc-ico { width:42px; height:42px; border-radius:12px; background:rgba(245,179,1,0.14); color:var(--gold); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .ct-loc-lbl { font-family:'Barlow Semi Condensed'; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--gold); }
+    .ct-loc-name { font-family:'Barlow Semi Condensed'; font-weight:800; font-size:19px; letter-spacing:0.3px; }
+    .ct-loc-addr { font-size:14px; color:rgba(255,255,255,0.7); line-height:1.5; margin-top:14px; position:relative; z-index:2; }
+    .ct-loc-rows { margin-top:16px; display:flex; flex-direction:column; gap:10px; position:relative; z-index:2; }
+    .ct-loc-row { display:flex; align-items:center; gap:10px; font-size:13px; color:rgba(255,255,255,0.78); }
+    .ct-lr-ico { width:30px; height:30px; border-radius:9px; background:rgba(255,255,255,0.08); color:var(--gold); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .ct-maps { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:18px; font-family:'Barlow Semi Condensed'; font-weight:700; font-size:14px; letter-spacing:0.3px; color:var(--navy-deep); background:var(--gold); border-radius:12px; padding:13px; text-decoration:none; position:relative; z-index:2; }
+
+    /* ============ BOTTOM NAV ============ */
+    .tabbar {
+      flex-shrink: 0;
+      height: calc(72px + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--line);
+      display: flex; align-items: stretch;
+      z-index: 60;
+    }
+    .tab {
+      flex: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 4px;
+      border: none; background: none; cursor: pointer;
+      color: #9aa9bb;
+      transition: color 0.16s;
+      position: relative;
+    }
+    .tab.active { color: var(--navy); }
+    .tab.active::before {
+      content: ""; position: absolute; top: 0;
+      width: 30px; height: 3px; border-radius: 0 0 3px 3px;
+      background: var(--gold);
+    }
+    .tab .lbl {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 11px; font-weight: 600; letter-spacing: 0.4px;
+    }
+
+    .home-indicator {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; border-radius: 3px;
+      background: rgba(0,0,0,0.25); z-index: 70;
+    }
+
+    /* ============ FOOTER ============ */
+    .site-footer {
+      background: var(--navy-deep);
+      color: #fff;
+      padding: 28px 22px 30px;
+      position: relative;
+      overflow: hidden;
+    }
+    .site-footer::after {
+      content: "";
+      position: absolute; left: -40px; bottom: -50px;
+      width: 160px; height: 160px; border-radius: 50%;
+      border: 1.5px solid rgba(245,179,1,0.14);
+    }
+    .footer-brand {
+      display: flex; align-items: center; gap: 11px;
+      position: relative; z-index: 2;
+    }
+    .footer-brand .brand-logo { width: 44px; height: 44px; }
+    .footer-brand .fname {
+      font-family: 'Barlow Semi Condensed';
+      font-weight: 800; font-size: 19px; letter-spacing: 0.6px;
+    }
+    .footer-brand .fname span { color: var(--gold); }
+    .footer-tag {
+      font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5;
+      margin-top: 14px; position: relative; z-index: 2; max-width: 280px;
+    }
+    .footer-rows { margin-top: 20px; display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 2; }
+    .footer-row { display: flex; align-items: flex-start; gap: 12px; }
+    .footer-row .fico {
+      width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center; color: var(--gold);
+    }
+    .footer-row .flbl {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 10.5px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+    }
+    .footer-row .fval {
+      font-family: 'Barlow Semi Condensed';
+      font-size: 16px; font-weight: 700; color: #fff; line-height: 1.25; margin-top: 1px;
+    }
+    .footer-row .fval small { display: block; font-family: 'Barlow'; font-weight: 400; font-size: 12.5px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+    .footer-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 22px 0 16px; position: relative; z-index: 2; }
+    .footer-legal {
+      font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.6;
+      position: relative; z-index: 2;
+    }
+  </style>
+</head>
+<body>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    /* ---------- Icons ---------- */
+    const Ic = {
+      search: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>,
+      menu: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>,
+      back: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>,
+      share: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5"/></svg>,
+      home: <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2h-4v-6H9v6H5a2 2 0 0 1-2-2z"/></svg>,
+      grid: <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>,
+      bars: <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>,
+      chev: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>,
+      drop: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>,
+      filter: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 5h18l-7 8v6l-4-2v-4z"/></svg>,
+      shield: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>,
+      gear: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>,
+      phone: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>,
+      info: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>,
+      building: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/></svg>,
+      wrench: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.5 2.5-2-2z"/></svg>,
+      factory: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21V9l6 4V9l6 4V5l6 2v14z"/></svg>,
+      news: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h13v16H6a2 2 0 0 1-2-2z"/><path d="M17 8h3v10a2 2 0 0 1-2 2M8 8h5M8 12h5M8 16h3"/></svg>,
+      mail: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>,
+      pdf: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>,
+      download: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>,
+      layers: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 2 9 5-9 5-9-5z"/><path d="m3 12 9 5 9-5M3 17l9 5 9-5"/></svg>,
+      mapPin: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>,
+      clock: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>,
+      check: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>,
+      send: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>,
+    };
+
+    const IMG = 'https://www.gft-filtrazione.it/wp-content/uploads/';
+
+    const products = [
+      {
+        id: 1,
+        name: 'HYDRAULIC FLUX 50',
+        category: 'Filtrazione Olio',
+        desc: 'Carrello per filtrazione olio idraulico a singolo filtro.',
+        flow: '50', flowFull: '3.000 litri/ora',
+        micron: '2 µm', water: 'Singolo filtro',
+        type: 'Carrello mobile',
+        grad: 'linear-gradient(150deg, #1d4ed8, #0a2540)',
+        photo: IMG + '2026/04/hydraulic-flux-800x900-1.jpg',
+        sectors: ['Oleodinamica', 'Presse', 'Acciaierie', 'Manutenzione'],
+      },
+      {
+        id: 2,
+        name: 'MAGNETIK BASIC 14',
+        category: 'Filtrazione Olio',
+        desc: 'Unità carrellata per filtrazione magnetica di oli idraulici, doppio stadio.',
+        flow: '14', flowFull: '840 litri/ora',
+        micron: 'Magn. + 10 µm', water: 'Filtrazione magnetica',
+        type: 'Carrello mobile',
+        grad: 'linear-gradient(150deg, #0e7490, #0a2540)',
+        photo: IMG + '2024/11/MAGNETIK-BASIC-14-HYDRAULIC-scritta-1.jpeg',
+        sectors: ['Riduttori', 'Cuscinetti', 'Trasmissioni'],
+      },
+      {
+        id: 3,
+        name: 'DIESEL DEFENDER MINI 14',
+        category: 'Filtrazione Gasolio',
+        desc: 'Unità per filtrazione diesel e assorbimento acqua, per serbatoi fino a 1.000 litri.',
+        flow: '14', flowFull: '840 litri/ora',
+        micron: '10 µm assorb.', water: 'Assorbimento acqua',
+        type: 'Unità fissa',
+        grad: 'linear-gradient(150deg, #dc2626, #7c1414)',
+        photo: IMG + '2025/04/DIESEL-DEFENDER-MINI-14-1-filtro-per-cisterne.jpeg',
+        sectors: ['Serbatoi', 'Gruppi elettrogeni', 'Antincendio'],
+      },
+      {
+        id: 4,
+        name: 'LUBROIL FLUX 25 CNC',
+        category: 'Filtrazione CNC',
+        desc: 'Unità carrellata per filtrazione olio intero su macchine CNC. Made in Italy.',
+        flow: '25', flowFull: '1.500 litri/ora',
+        micron: '10 µm', water: 'Olio intero',
+        type: 'Carrello mobile',
+        grad: 'linear-gradient(150deg, #7c3aed, #4c1d95)',
+        photo: IMG + '2024/03/CNC-Lube-Flux-25-nonews.jpg',
+        sectors: ['Macchine utensili', 'CNC', 'Tornitura'],
+      },
+    ];
+
+    const newsItems = [
+      {
+        t: 'Data Center sicuri: la qualità del carburante fa la differenza',
+        cat: 'Gasolio', date: '1 Dic 2025',
+        photo: IMG + '2025/03/Gruppo-elettrogeno.webp',
+      },
+      {
+        t: 'Filtro AdBlue motori Stage V: prestazioni a prova di direttive',
+        cat: 'Gasolio', date: '5 Ago 2025',
+        photo: IMG + '2025/08/gft-luglio-2025-gft-filtrazione.jpg',
+      },
+      {
+        t: 'Motopompe impianti antincendio: l\u2019ABC della manutenzione',
+        cat: 'Gasolio', date: '19 Giu 2025',
+        photo: IMG + '2025/04/DIESEL-DEFENDER-MINI-14-1-filtro-per-cisterne.jpeg',
+      },
+      {
+        t: 'Nebbie oleose: protezione per lavoratori e macchine CNC',
+        cat: 'CNC', date: '6 Mar 2025',
+        photo: IMG + '2025/03/NEBBIE-OLEOSE-1-1.jpeg',
+      },
+      {
+        t: 'Trattamento aria compressa: al bando liquidi e impurità',
+        cat: 'Olio', date: '28 Nov 2024',
+        photo: IMG + '2024/11/TRATTAMENTO-ARIA-COMPRESSA-1.jpeg',
+      },
+    ];
+
+    const categories = ['Tutti', 'Olio', 'Gasolio', 'AdBlue', 'Industriale', 'CNC'];
+
+    const catMeta = {
+      'Olio': { title: 'Filtrazione Olio', desc: 'Carrelli e unità per la filtrazione e la cura di oli idraulici e lubrificanti.', match: p => /Olio/.test(p.category) },
+      'Gasolio': { title: 'Filtrazione Gasolio', desc: 'Sistemi per la pulizia del gasolio, la separazione dell\u2019acqua e la cura dei serbatoi.', match: p => /Gasolio/.test(p.category) },
+      'CNC': { title: 'Filtrazione CNC', desc: 'Filtrazione olio intero per macchine utensili e centri di lavoro CNC. Made in Italy.', match: p => /CNC/.test(p.category) },
+      'AdBlue': { title: 'Trattamento AdBlue', desc: 'Soluzioni per il filtraggio e la gestione dell\u2019AdBlue su motori Stage V.', match: p => false },
+      'Industriale': { title: 'Soluzioni industriali', desc: 'Trattamento aria compressa, abbattimento nebbie oleose e impianti dedicati.', match: p => false },
+    };
+
+    /* ---------- Scheda tecnica PDF (generata al volo, funziona offline) ---------- */
+    function dlFile(name, blob) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1500);
+    }
+    function pdfAscii(s) { return String(s).normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/\u00b5/g, 'u').replace(/[^\x20-\x7e]/g, '-'); }
+    function pdfEsc(s) { return pdfAscii(s).replace(/([\\()])/g, '\\$1'); }
+    function pdfWrap(s, n) {
+      const words = String(s).split(/\s+/); const out = []; let line = '';
+      words.forEach(function (w) { if ((line + ' ' + w).trim().length > n) { out.push(line.trim()); line = w; } else { line += ' ' + w; } });
+      if (line.trim()) out.push(line.trim()); return out;
+    }
+    function makePDF(cs) {
+      const objs = [];
+      objs[1] = '<</Type/Catalog/Pages 2 0 R>>';
+      objs[2] = '<</Type/Pages/Kids[3 0 R]/Count 1>>';
+      objs[3] = '<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]/Resources<</Font<</F1 5 0 R/F2 6 0 R>>>>/Contents 4 0 R>>';
+      objs[4] = '<</Length ' + cs.length + '>>\nstream\n' + cs + 'endstream';
+      objs[5] = '<</Type/Font/Subtype/Type1/BaseFont/Helvetica-Bold>>';
+      objs[6] = '<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>';
+      let pdf = '%PDF-1.4\n'; const off = [];
+      for (let i = 1; i < objs.length; i++) { off[i] = pdf.length; pdf += i + ' 0 obj\n' + objs[i] + '\nendobj\n'; }
+      const xs = pdf.length;
+      pdf += 'xref\n0 ' + objs.length + '\n0000000000 65535 f \n';
+      for (let j = 1; j < objs.length; j++) { pdf += ('0000000000' + off[j]).slice(-10) + ' 00000 n \n'; }
+      pdf += 'trailer\n<</Size ' + objs.length + '/Root 1 0 R>>\nstartxref\n' + xs + '\n%%EOF';
+      return new Blob([pdf], { type: 'application/pdf' });
+    }
+    function schedaPDF(p) {
+      const navy = '0.039 0.145 0.251', gold = '0.957 0.702 0.004', gray = '0.32 0.39 0.48', white = '1 1 1';
+      let cs = '';
+      const fill = c => { cs += c + ' rg\n'; };
+      const rect = (x, y, w, h) => { cs += x + ' ' + y + ' ' + w + ' ' + h + ' re f\n'; };
+      const T = (x, y, size, font, c, str) => { cs += 'BT ' + c + ' rg /' + font + ' ' + size + ' Tf ' + x + ' ' + y + ' Td (' + pdfEsc(str) + ') Tj ET\n'; };
+      fill(navy); rect(0, 762, 595, 80);
+      T(40, 802, 22, 'F1', white, 'GFT FILTRAZIONE');
+      T(40, 782, 10, 'F2', gold, 'SCHEDA TECNICA PRODOTTO');
+      T(40, 712, 24, 'F1', navy, p.name);
+      T(40, 690, 12, 'F2', gray, p.category);
+      fill(gold); rect(40, 678, 515, 2);
+      let y = 646;
+      [['Portata', p.flowFull], ['Filtrazione', p.micron], ['Trattamento', p.water], ['Tipologia', p.type], ['Certificazione', 'CE - Conforme']].forEach(function (r) {
+        T(40, y, 10, 'F2', gray, r[0].toUpperCase());
+        T(210, y, 13, 'F1', navy, r[1]); y -= 30;
+      });
+      y -= 8;
+      T(40, y, 12, 'F1', navy, 'DESCRIZIONE'); y -= 22;
+      pdfWrap(p.desc + ' Progettato per garantire la massima purezza dei fluidi e prolungare la vita di pompe, valvole e componenti idraulici. Costruzione robusta per uso industriale continuo.', 82).forEach(function (l) { T(40, y, 11, 'F2', gray, l); y -= 16; });
+      y -= 14;
+      T(40, y, 12, 'F1', navy, 'SETTORI DI APPLICAZIONE'); y -= 22;
+      T(40, y, 11, 'F2', gray, p.sectors.join('   -   '));
+      fill(navy); rect(0, 0, 595, 70);
+      T(40, 42, 11, 'F1', white, 'GFT Srl  -  Via Celestino Monari Sarde, 9  -  40010 Bentivoglio (BO)');
+      T(40, 25, 10, 'F2', gold, 'Tel. 349 5965967    info@gft-filtrazione.it    www.gft-filtrazione.it');
+      return makePDF(cs);
+    }
+    function schedaDownload(p) {
+      dlFile('Scheda-Tecnica-' + p.name.replace(/\s+/g, '-') + '.pdf', schedaPDF(p));
+    }
+
+    function StatusBar({ dark }) {
+      return (
+        <div className={`status-bar ${dark ? 'on-dark' : 'on-light'}`}>
+          <span>9:41</span>
+          <div className="status-icons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.2-1.3C13.8 1.7 11.3.7 8.5.7S3.2 1.7 1.3 3.6L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z" opacity="0.9"/><path d="M8.5 6c1.2 0 2.3.5 3.1 1.3l1.2-1.3C11.7 4.8 10.2 4.1 8.5 4.1S5.3 4.8 4.2 6l1.2 1.3C6.2 6.5 7.3 6 8.5 6z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13" fill="none"><rect x="0.5" y="0.5" width="22" height="12" rx="3.2" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="18" height="9" rx="2" fill="currentColor"/><rect x="23.5" y="4" width="2" height="5" rx="1" fill="currentColor" opacity="0.5"/></svg>
+          </div>
+        </div>
+      );
+    }
+
+    function ContactScreen({ products, goBack }) {
+      const [form, setForm] = useState({ nome:'', azienda:'', email:'', tel:'', sistema:'', msg:'' });
+      const [sent, setSent] = useState(false);
+      const upd = (k) => (e) => { const v = e.target.value; setForm(f => ({ ...f, [k]: v })); };
+      const submit = (e) => { e.preventDefault(); setSent(true); };
+      const firstName = form.nome.trim().split(/\s+/)[0];
+      return (
+        <div className="scroll-area">
+          <div className="contatti-hero">
+            <StatusBar dark />
+            <div className="cat-nav">
+              <div className="icon-btn" onClick={goBack}>{Ic.back}</div>
+              <a className="phone-btn" href="tel:+393495965967" style={{textDecoration:'none'}}>{Ic.phone} Chiama</a>
+            </div>
+            <span className="cat-eyebrow">Parla con noi</span>
+            <h2>Contatti</h2>
+            <p>Richiedi un preventivo o una consulenza tecnica. Ti rispondiamo entro 24 ore lavorative.</p>
+          </div>
+
+          <div className="ct-quick">
+            <a className="ct-qcard" href="tel:+393495965967">
+              <div className="ct-qico">{Ic.phone}</div>
+              <div className="ct-qlbl">Telefono</div>
+              <div className="ct-qval">349 5965967</div>
+            </a>
+            <a className="ct-qcard" href="mailto:info@gft-filtrazione.it">
+              <div className="ct-qico">{Ic.mail}</div>
+              <div className="ct-qlbl">Email</div>
+              <div className="ct-qval">Scrivici</div>
+            </a>
+          </div>
+
+          {sent ? (
+            <div className="cform cform-done">
+              <div className="cform-check">{Ic.check}</div>
+              <h3>Richiesta inviata</h3>
+              <p>Grazie{firstName ? ', ' + firstName : ''}! Il nostro ufficio tecnico ti ricontatterà entro 24 ore lavorative.</p>
+              <button className="cform-again" onClick={() => { setSent(false); setForm({ nome:'', azienda:'', email:'', tel:'', sistema:'', msg:'' }); }}>Invia un'altra richiesta</button>
+            </div>
+          ) : (
+            <form className="cform" onSubmit={submit}>
+              <h3>Richiedi informazioni</h3>
+              <p className="cform-sub">Compila il modulo, ti ricontattiamo con una proposta su misura.</p>
+              <label className="cfield">
+                <span>Nome e cognome</span>
+                <input required value={form.nome} onChange={upd('nome')} placeholder="Mario Rossi" />
+              </label>
+              <label className="cfield">
+                <span>Azienda</span>
+                <input value={form.azienda} onChange={upd('azienda')} placeholder="La tua azienda" />
+              </label>
+              <div className="cfield-row">
+                <label className="cfield">
+                  <span>Email</span>
+                  <input required type="email" value={form.email} onChange={upd('email')} placeholder="email@azienda.it" />
+                </label>
+                <label className="cfield">
+                  <span>Telefono</span>
+                  <input value={form.tel} onChange={upd('tel')} placeholder="—" />
+                </label>
+              </div>
+              <label className="cfield">
+                <span>Sistema di interesse</span>
+                <select value={form.sistema} onChange={upd('sistema')}>
+                  <option value="">Seleziona…</option>
+                  {products.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
+                  <option value="Altro">Altro / consulenza</option>
+                </select>
+              </label>
+              <label className="cfield">
+                <span>Messaggio</span>
+                <textarea rows="3" value={form.msg} onChange={upd('msg')} placeholder="Descrivi la tua esigenza di filtrazione…"></textarea>
+              </label>
+              <button type="submit" className="cform-submit">{Ic.send} Invia richiesta</button>
+              <div className="cform-privacy">Inviando accetti il trattamento dei dati secondo la privacy policy GFT.</div>
+            </form>
+          )}
+
+          <div className="ct-location">
+            <div className="ct-loc-head">
+              <div className="ct-loc-ico">{Ic.mapPin}</div>
+              <div>
+                <div className="ct-loc-lbl">Sede operativa</div>
+                <div className="ct-loc-name">GFT Srl</div>
+              </div>
+            </div>
+            <div className="ct-loc-addr">Via Celestino Monari Sardé, 9<br/>40010 Bentivoglio (BO) — Italia</div>
+            <div className="ct-loc-rows">
+              <div className="ct-loc-row"><div className="ct-lr-ico">{Ic.clock}</div><span>Lun–Ven · 8:30–12:30 / 14:00–18:00</span></div>
+              <div className="ct-loc-row"><div className="ct-lr-ico">{Ic.mail}</div><span>info@gft-filtrazione.it</span></div>
+            </div>
+            <a className="ct-maps" href="https://www.google.com/maps/search/?api=1&query=Via+Celestino+Monari+Sard%C3%A9+9+Bentivoglio+BO" target="_blank" rel="noopener">{Ic.mapPin} Apri in Google Maps</a>
+          </div>
+          <div style={{height:'18px'}}></div>
+        </div>
+      );
+    }
+
+    function GFT() {
+      const initScreen = (typeof window !== 'undefined' && window.__initialScreen) ? window.__initialScreen
+        : (typeof location !== 'undefined' ? location.hash.replace('#','') : '');
+      const valid = ['home','product','news','menu','contatti'];
+      const [screen, setScreen] = useState(valid.includes(initScreen) ? initScreen : 'home');
+      const [pid, setPid] = useState(1);
+      const [cat, setCat] = useState('Tutti');
+      const [activeCat, setActiveCat] = useState('Olio');
+      const [prodOrigin, setProdOrigin] = useState('home');
+
+      const openProduct = (id, origin) => { setPid(id); setProdOrigin(origin || 'home'); setScreen('product'); window.__sa && window.__sa(); };
+      const openCategory = (c) => { if (c === 'Tutti') { setCat('Tutti'); return; } setCat(c); setActiveCat(c); setScreen('category'); window.__sa && window.__sa(); };
+      const product = products.find(p => p.id === pid);
+
+      const darkTop = screen !== 'product' ? false : true; // product hero is dark too
+
+      return (
+        <div className="phone">
+          <div className="island"></div>
+          <div className="screen-frame">
+            {/* HOME */}
+            <div className={`screen ${screen === 'home' ? 'active' : ''}`}>
+              <div className="scroll-area" ref={el => { if (screen==='home') window.__sa = () => el && el.scrollTo(0,0); }}>
+                <div className="home-top">
+                  <StatusBar dark />
+                  <div className="brand-row">
+                    <div className="brand">
+                      <div className="brand-logo"><img src="images/gft-logo.webp" alt="GFT Filtrazione" /></div>
+                      <div>
+                        <div className="brand-mark">GF<span className="accent">T</span> <span style={{fontSize:'15px',opacity:0.85,fontWeight:600}}>Filtrazione</span></div>
+                        <div className="brand-sub">We believe in filtration</div>
+                      </div>
+                    </div>
+                    <div className="header-actions">
+                      <button className="phone-btn" onClick={() => setScreen('contatti')}>{Ic.phone} Chiama</button>
+                      <div className="icon-btn" onClick={() => setScreen('menu')}>{Ic.menu}</div>
+                    </div>
+                  </div>
+                  <div className="hero">
+                    <span className="hero-tag">{Ic.drop} We believe in filtration</span>
+                    <h1>Filtrazione industriale di precisione</h1>
+                    <p>Sistemi e tecnologie per la gestione e pulizia di oli idraulici, lubrificanti e carburanti.</p>
+                  </div>
+                </div>
+
+                <div className="search-wrap">
+                  <div className="search">
+                    {Ic.search}
+                    <input placeholder="Cerca un sistema di filtrazione…" />
+                    <span style={{color:'#9aa9bb'}}>{Ic.filter}</span>
+                  </div>
+                </div>
+
+                <div className="chips">
+                  {categories.map(c => (
+                    <div key={c} className={`chip ${cat === c ? 'active' : ''}`} onClick={() => openCategory(c)}>{c}</div>
+                  ))}
+                </div>
+
+                <div className="section-head">
+                  <h2>Prodotti in evidenza</h2>
+                  <span>{products.length} sistemi</span>
+                </div>
+
+                <div className="product-list">
+                  {products.map((p, idx) => (
+                    <div key={p.id} className="pcard anim-rise" style={{ animationDelay: `${0.05 * idx}s` }} onClick={() => openProduct(p.id)}>
+                      <div className="pcard-img" style={{ background: p.grad }}>
+                        <img className="pcard-photo" src={p.photo} alt={p.name} loading="lazy"
+                          onError={e => { e.target.style.display='none'; }} />
+                        <div className="img-scrim"></div>
+                        <div className="flow"><b>{p.flow}</b><small>L/MIN</small></div>
+                      </div>
+                      <div className="pcard-body">
+                        <div className="pcat">{p.category}</div>
+                        <div className="pname">{p.name}</div>
+                        <div className="pdesc">{p.desc}</div>
+                        <div className="pmeta">
+                          <span className="tag">{p.micron}</span>
+                          <span className="tag ce">{Ic.shield} CE</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="section-head" style={{ paddingTop: 0 }}>
+                  <h2>Novità & approfondimenti</h2>
+                  <span onClick={() => setScreen('news')}>Tutte</span>
+                </div>
+                <div className="news-rail">
+                  {newsItems.slice(0, 4).map((n, i) => (
+                    <div key={i} className="news-mini anim-rise" style={{ animationDelay: `${0.06 * i}s` }} onClick={() => setScreen('news')}>
+                      <div className="news-mini-imgwrap">
+                        <img className="news-mini-img" src={n.photo} alt={n.t} loading="lazy"
+                          onError={e => { e.target.parentNode.style.height='0px'; }} />
+                        <span className="news-mini-cat">{n.cat}</span>
+                      </div>
+                      <div className="news-mini-body">
+                        <div className="news-mini-t">{n.t}</div>
+                        <div className="news-date">{n.date}<span className="read">Leggi {Ic.chev}</span></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ height: '8px' }}></div>
+
+                <div className="site-footer">
+                  <div className="footer-brand">
+                    <div className="brand-logo"><img src="images/gft-logo.webp" alt="GFT Filtrazione" /></div>
+                    <div className="fname">GF<span>T</span> Filtrazione</div>
+                  </div>
+                  <div className="footer-tag">Sistemi e tecnologie per la filtrazione industriale di oli idraulici, lubrificanti e carburanti.</div>
+                  <div className="footer-rows">
+                    <div className="footer-row">
+                      <div className="fico">{Ic.phone}</div>
+                      <div>
+                        <div className="flbl">Telefono</div>
+                        <div className="fval">349 5965967</div>
+                      </div>
+                    </div>
+                    <div className="footer-row">
+                      <div className="fico">{Ic.mail}</div>
+                      <div>
+                        <div className="flbl">Email</div>
+                        <div className="fval">info@gft-filtrazione.it</div>
+                      </div>
+                    </div>
+                    <div className="footer-row">
+                      <div className="fico">{Ic.building}</div>
+                      <div>
+                        <div className="flbl">Sede</div>
+                        <div className="fval">GFT Srl<small>Via Celestino Monari Sardé, 9<br/>40010 Bentivoglio (BO)</small></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="footer-divider"></div>
+                  <div className="footer-legal">© 2026 GFT Srl — Tutti i diritti riservati<br/>www.gft-filtrazione.it</div>
+                </div>
+              </div>
+            </div>
+            <div className={`screen ${screen === 'product' ? 'active' : ''}`}>
+              <div className="scroll-area">
+                <div className="detail-hero" style={{
+                  backgroundImage: `linear-gradient(165deg, rgba(10,37,64,0.55) 0%, rgba(6,25,44,0.94) 100%), url(${product.photo})`,
+                  backgroundSize: 'cover', backgroundPosition: 'center'
+                }}>
+                  <StatusBar dark />
+                  <div className="detail-nav">
+                    <div className="icon-btn" onClick={() => setScreen(prodOrigin)}>{Ic.back}</div>
+                    <div className="icon-btn">{Ic.share}</div>
+                  </div>
+                  <div className="detail-hero-content">
+                    <span className="detail-cat">{product.category}</span>
+                    <div className="detail-name">{product.name}</div>
+                    <div className="detail-flow">
+                      <b>{product.flow}</b>
+                      <span>litri / minuto · {product.flowFull}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="detail-body">
+                  <div className="spec-grid">
+                    <div className="spec-card">
+                      <div className="ico">{Ic.filter}</div>
+                      <div className="lbl">Filtrazione</div>
+                      <div className="val">{product.micron}</div>
+                    </div>
+                    <div className="spec-card">
+                      <div className="ico">{Ic.drop}</div>
+                      <div className="lbl">Trattamento</div>
+                      <div className="val">{product.water}</div>
+                    </div>
+                    <div className="spec-card">
+                      <div className="ico">{Ic.gear}</div>
+                      <div className="lbl">Tipologia</div>
+                      <div className="val">{product.type}</div>
+                    </div>
+                    <div className="spec-card">
+                      <div className="ico">{Ic.shield}</div>
+                      <div className="lbl">Certificazione</div>
+                      <div className="val">CE</div>
+                    </div>
+                  </div>
+
+                  <div className="block-title">Descrizione</div>
+                  <div className="detail-desc">
+                    {product.desc} Progettato per garantire la massima purezza dei fluidi e prolungare la vita di pompe, valvole e componenti idraulici. Costruzione robusta per uso industriale continuo.
+                  </div>
+
+                  <div className="block-title">Settori di applicazione</div>
+                  <div className="sectors">
+                    {product.sectors.map(s => <span key={s} className="sector">{s}</span>)}
+                  </div>
+
+                  <div className="block-title">Documentazione</div>
+                  <button className="doc-card" onClick={() => schedaDownload(product)}>
+                    <div className="doc-ico">{Ic.pdf}</div>
+                    <div className="doc-info">
+                      <b>Scheda tecnica — {product.name}</b>
+                      <small>PDF · Specifiche complete</small>
+                    </div>
+                    <div className="doc-dl">{Ic.download}</div>
+                  </button>
+                </div>
+              </div>
+
+              <div className="detail-cta">
+                <button className="btn btn-primary" onClick={() => setScreen('contatti')}>{Ic.mail} Richiedi informazioni</button>
+                <button className="btn btn-icon">{Ic.phone}</button>
+              </div>
+            </div>
+
+            {/* CATEGORY */}
+            <div className={`screen ${screen === 'category' ? 'active' : ''}`}>
+              <div className="scroll-area">
+                {(() => {
+                  const meta = catMeta[activeCat] || { title: activeCat, desc: '', match: () => true };
+                  const list = products.filter(meta.match);
+                  return (
+                    <React.Fragment>
+                      <div className="cat-hero">
+                        <StatusBar dark />
+                        <div className="cat-nav">
+                          <div className="icon-btn" onClick={() => setScreen('home')}>{Ic.back}</div>
+                          <div className="icon-btn" onClick={() => setScreen('menu')}>{Ic.menu}</div>
+                        </div>
+                        <span className="cat-eyebrow">Categoria prodotti</span>
+                        <h2>{meta.title}</h2>
+                        <p>{meta.desc}</p>
+                      </div>
+
+                      <div className="cat-toolbar">
+                        <div className="cat-count"><span>{list.length}</span> {list.length === 1 ? 'sistema' : 'sistemi'}</div>
+                        <div className="cat-sort">{Ic.filter} Ordina</div>
+                      </div>
+
+                      {list.length > 0 ? (
+                        <div className="product-list">
+                          {list.map((p, idx) => (
+                            <div key={p.id} className="pcard anim-rise" style={{ animationDelay: `${0.05 * idx}s` }} onClick={() => openProduct(p.id, 'category')}>
+                              <div className="pcard-img" style={{ background: p.grad }}>
+                                <img className="pcard-photo" src={p.photo} alt={p.name} loading="lazy" onError={e => { e.target.style.display = 'none'; }} />
+                                <div className="img-scrim"></div>
+                                <div className="flow"><b>{p.flow}</b><small>L/MIN</small></div>
+                              </div>
+                              <div className="pcard-body">
+                                <div className="pcat">{p.category}</div>
+                                <div className="pname">{p.name}</div>
+                                <div className="pdesc">{p.desc}</div>
+                                <div className="pmeta">
+                                  <span className="tag">{p.micron}</span>
+                                  <span className="tag ce">{Ic.shield} CE</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="empty-state">
+                          <div className="es-ico">{Ic.layers}</div>
+                          <h4>Catalogo in aggiornamento</h4>
+                          <p>Le soluzioni per questa categoria saranno presto disponibili. Contattaci per una consulenza dedicata.</p>
+                          <button onClick={() => openProduct(1, 'category')}>Vedi i prodotti correlati</button>
+                        </div>
+                      )}
+                      <div style={{ height: '24px' }}></div>
+                    </React.Fragment>
+                  );
+                })()}
+              </div>
+            </div>
+
+            {/* MENU */}
+            <div className={`screen ${screen === 'menu' ? 'active' : ''}`}>
+              <div className="scroll-area">
+                <div className="menu-top">
+                  <StatusBar dark />
+                  <h2>Menu</h2>
+                  <p>Naviga prodotti, servizi e contatti</p>
+                </div>
+                <div className="menu-list">
+                  {[
+                    { ico: Ic.building, t: 'Chi siamo', s: 'Azienda, press, distributori' },
+                    { ico: Ic.grid, t: 'Prodotti', s: 'Olio · Gasolio · AdBlue · CNC' },
+                    { ico: Ic.wrench, t: 'Servizi', s: 'Riparazione pompe e motori idraulici' },
+                    { ico: Ic.factory, t: 'Settori', s: 'Applicazioni industriali' },
+                    { ico: Ic.news, t: 'News', s: 'Olio · Gasolio · CNC' },
+                    { ico: Ic.info, t: 'FAQ', s: 'Domande su olio e gasolio' },
+                  ].map((m, i) => (
+                    <div key={i} className="menu-item" onClick={() => {
+                      if (m.t === 'Prodotti') setScreen('home');
+                      if (m.t === 'News') setScreen('news');
+                    }}>
+                      <div className="menu-ico">{m.ico}</div>
+                      <div className="menu-txt"><b>{m.t}</b><small>{m.s}</small></div>
+                      <span className="menu-chev">{Ic.chev}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="contact-card" style={{cursor:'pointer'}} onClick={() => setScreen('contatti')}>
+                  <div className="ct-lbl">Contattaci</div>
+                  <div className="ct-phone">349 5965967</div>
+                  <div className="ct-addr">GFT Srl — Via Celestino Monari Sardé, 9<br/>40010 Bentivoglio (BO)</div>
+                </div>
+              </div>
+            </div>
+
+            {/* CONTATTI */}
+            <div className={`screen ${screen === 'contatti' ? 'active' : ''}`}>
+              <ContactScreen products={products} goBack={() => setScreen('home')} />
+            </div>
+
+            {/* NEWS */}
+            <div className={`screen ${screen === 'news' ? 'active' : ''}`}>
+              <div className="scroll-area">
+                <div className="menu-top">
+                  <StatusBar dark />
+                  <h2>News</h2>
+                  <p>Approfondimenti su olio, gasolio e CNC</p>
+                </div>
+                <div className="news-list">
+                  {newsItems.map((n, i) => (
+                    i === 0 ? (
+                    <div key={i} className="news-feat anim-rise" onClick={() => {}}>
+                      <img className="news-feat-img" src={n.photo} alt={n.t} loading="lazy"
+                        onError={e => { e.target.style.height='160px'; }} />
+                      <div className="news-feat-scrim"></div>
+                      <div className="news-feat-body">
+                        <span className="news-feat-cat">{n.cat}</span>
+                        <div className="news-feat-t">{n.t}</div>
+                        <div className="news-feat-meta">{n.date} · Approfondimento</div>
+                      </div>
+                    </div>
+                    ) : (
+                    <div key={i} className="news-row anim-rise" style={{ animationDelay: `${0.05 * i}s` }}>
+                      <img className="news-row-img" src={n.photo} alt={n.t} loading="lazy"
+                        onError={e => { e.target.style.visibility='hidden'; }} />
+                      <div className="news-row-body">
+                        <div className="news-cat">{n.cat}</div>
+                        <div className="news-row-t">{n.t}</div>
+                        <div className="news-date">{n.date}<span className="read">Leggi {Ic.chev}</span></div>
+                      </div>
+                    </div>
+                    )
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* TAB BAR */}
+            <div className="tabbar">
+              <button className={`tab ${screen === 'home' ? 'active' : ''}`} onClick={() => setScreen('home')}>
+                {Ic.home}<span className="lbl">Home</span>
+              </button>
+              <button className={`tab ${screen === 'product' ? 'active' : ''}`} onClick={() => setScreen('product')}>
+                {Ic.grid}<span className="lbl">Prodotti</span>
+              </button>
+              <button className={`tab ${screen === 'news' ? 'active' : ''}`} onClick={() => setScreen('news')}>
+                {Ic.news}<span className="lbl">News</span>
+              </button>
+              <button className={`tab ${screen === 'contatti' ? 'active' : ''}`} onClick={() => setScreen('contatti')}>
+                {Ic.mail}<span className="lbl">Contatti</span>
+              </button>
+              <button className={`tab ${screen === 'menu' ? 'active' : ''}`} onClick={() => setScreen('menu')}>
+                {Ic.bars}<span className="lbl">Menu</span>
+              </button>
+            </div>
+
+            <div className="home-indicator"></div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<GFT />, document.getElementById('root'));
+  </script>
+</body>
+</html>
