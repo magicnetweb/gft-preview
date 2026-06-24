@@ -205,18 +205,18 @@ body{font-family:"Barlow Semi Condensed",system-ui,sans-serif;color:var(--ink);b
 }
 
 /* ALLINEAMENTO ICONA IN LINEA CON IL TITOLO NELL'HERO */
-.hero-cat .hero-icon {
+.hero-cat .hero-icon, .hero-chi .hero-icon {
   display: inline-block !important;
   vertical-align: middle !important;
   margin-bottom: 0 !important;
   margin-right: 18px !important;
 }
-.hero-cat h1 {
+.hero-cat h1, .hero-chi h1 {
   display: inline-block !important;
   vertical-align: middle !important;
   margin-bottom: 0 !important;
 }
-.hero-cat .subtitle {
+.hero-cat .subtitle, .hero-chi .subtitle {
   display: block !important;
   margin-top: 18px !important;
 }
@@ -236,30 +236,25 @@ body{font-family:"Barlow Semi Condensed",system-ui,sans-serif;color:var(--ink);b
   .hero-cat, .hero-chi, .single-hero {
     padding: 30px 4% 25px !important;
   }
-  .hero-cat .hero-icon {
+  .hero-cat .hero-icon, .hero-chi .hero-icon {
     font-size: 28px !important;
     margin-right: 10px !important;
     margin-bottom: 0 !important;
     display: inline-block !important;
     vertical-align: middle !important;
   }
-  .hero-cat h1 {
+  .hero-cat h1, .hero-chi h1 {
     font-size: 26px !important;
     margin-bottom: 0 !important;
     line-height: 1.2 !important;
     display: inline-block !important;
     vertical-align: middle !important;
   }
-  .hero-chi h1 {
-    font-size: 28px !important;
-    margin-bottom: 10px !important;
-    line-height: 1.2 !important;
-  }
   .hero-cat .subtitle, .hero-chi .subtitle {
     font-size: 15px !important;
     line-height: 1.45 !important;
   }
-  .hero-cat .subtitle {
+  .hero-cat .subtitle, .hero-chi .subtitle {
     margin-top: 10px !important;
   }
 }
@@ -420,6 +415,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 /* HERO CHI SIAMO */
 .hero-chi{background:var(--navy);text-align:center;padding:80px 5% 70px;position:relative;overflow:hidden}
 .hero-chi::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 30% 50%,rgba(245,179,1,.08) 0%,transparent 70%)}
+.hero-chi .hero-icon{font-size:48px;color:var(--gold);margin-bottom:20px;position:relative}
 .hero-chi h1{color:var(--white);font-size:54px;font-weight:900;margin-bottom:16px;position:relative}
 .hero-chi .subtitle{color:rgba(255,255,255,.8);font-size:20px;font-weight:400;max-width:700px;margin:0 auto;line-height:1.5;position:relative}
 
@@ -501,6 +497,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 </style>
 <!-- HERO CHI SIAMO -->
 <section class="hero-chi">
+<div class="hero-icon"><i class="fas fa-building"></i></div>
 <h1>Chi Siamo</h1>
 <p class="subtitle">GFT - Global Filtration Technology. Sistemi di filtrazione per oli e carburanti, il punto di riferimento nel campo della filtrazione industriale e oleodinamica.</p>
 </section>
